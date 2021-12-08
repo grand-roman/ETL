@@ -115,15 +115,14 @@ class PostgresService:
             query=query_film_works_by_ids(film_work_ids=film_work_ids)
         )
         """ get unique ids of film works """
-        film_work_ids: set = {film_work.get("fw_id") for film_work in film_works}
         transformed_data: list = []
         """ combine duplicates rows """
         genres: Optional[List[str]] = []
-        directors: Optional[List[str]] = []
+        role_directors: Optional[List[str]] = []
         actors_names: Optional[List[str]] = []
         writers_names: Optional[List[str]] = []
-        actors: Optional[List[Dict[str, str]]] = []
-        writers: Optional[List[Dict[str, str]]] = []
+        actors_instance: Optional[List[Dict[str, str]]] = []
+        writers_instance: Optional[List[Dict[str, str]]] = []
         for film_work in film_works:
             imdb_rating = film_work.get("rating")
             title = film_work.get("title")
@@ -137,33 +136,33 @@ class PostgresService:
             match film_work.get("role"):
                 case PersonTypeEnum.director:
                     """group director's names"""
-                    if person_name not in directors:
-                        directors.append(person_name)
+                    if person_name not in role_directors:
+                        role_directors.append(person_name)
                 case PersonTypeEnum.actor:
                     """group actor's names"""
                     if person_name not in actors_names:
                         actors_names.append(person_name)
                     """ group actor's instances """
-                    if person_instance not in actors:
-                        actors.append(person_instance)
+                    if person_instance not in actors_instance:
+                        actors_instance.append(person_instance)
                 case PersonTypeEnum.writer:
                     """group writer's names"""
                     if person_name not in writers_names:
                         writers_names.append(person_name)
                     """ group writer's instances """
-                    if person_instance not in writers:
-                        writers.append(person_instance)
+                    if person_instance not in writers_instance:
+                        writers_instance.append(person_instance)
             new_film_work = {
                 "id": film_work.get("fw_id"),
                 "imdb_rating": imdb_rating,
                 "title": title,
                 "description": description,
                 "genre": genres,
-                "director": directors,
+                "director": role_directors,
                 "actors_names": actors_names,
                 "writers_names": writers_names,
-                "actors": actors,
-                "writers": writers,
+                "actors": actors_instance,
+                "writers": writers_instance,
             }
             transformed_data.append(new_film_work)
         """ generate new_film_work data """

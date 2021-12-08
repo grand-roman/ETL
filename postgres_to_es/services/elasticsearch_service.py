@@ -1,6 +1,6 @@
 import json
 import logging
-
+from http import HTTPStatus
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 
@@ -19,7 +19,7 @@ class ElasticsearchService:
         self.index_name = index_name
         self.file_path = es_settings.ETL_FILE_PATH
 
-    def create_index(self, ignore_http_response: int = 400) -> None:
+    def create_index(self, ignore_http_response: int = HTTPStatus.BAD_REQUEST) -> None:
         with open(self.file_path, "r") as es_file:
             index_settings = json.load(es_file)
             self.client.indices.create(
